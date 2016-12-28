@@ -119,7 +119,6 @@ Object.prototype.toRgb = function (opacity) {
       s.hue /= 60;
       s.saturation /= 100;
       s.lightness /= 100;
-      //return s.hue + " " + s.saturation + " " + s.lightness;
       if (s.lightness < 0.5) {
         var temp1 = s.lightness * (1 + s.saturation);
       } else {
@@ -129,22 +128,34 @@ Object.prototype.toRgb = function (opacity) {
           R = s.hue + 2,
           G = s.hue,
           B = s.hue - 2;
-      function clc(tempS) {
-        if (tempS < 0) { tempS += 6; }
-        if (tempS > 6) { tempS -= 6; }
-        if (tempS < 1) {
-          return Math.round(((temp1 - temp2) * tempS + temp2) * 255);
-        } else if (tempS < 3) {
+      function calcSpectrum(spectrum) {
+        if (spectrum < 0) {
+          spectrum += 6;
+        }
+        if (spectrum > 6) {
+          spectrum -= 6;
+        }
+        if (spectrum < 1) {
+          return Math.round(((temp1 - temp2) * spectrum + temp2) * 255);
+        } else if (spectrum < 3) {
           return Math.round(temp1 * 255);
-        } else if (tempS < 4) {
-          return Math.round(((temp1 - temp2) * (4 - tempS) + temp2) * 255);
+        } else if (spectrum < 4) {
+          return Math.round(((temp1 - temp2) * (4 - spectrum) + temp2) * 255);
         } else {
           return Math.round(temp2 * 255);
         }
-        return tempS * 255;
+        return Math.round(spectrum * 255);
       };
-      //return clc(R) + " " + clc(G) + " " + clc(B);
-      // ----- Opacity handler
+      if (!opacityIsExists || !parseAlpha(opacity)) {
+        if (!parseAlpha(s.alpha)) {
+          s.alpha = 1;
+        }
+        A = s.alpha;
+      }
+      if (A == 1) {
+        return "rgb(" + calcSpectrum(R) + "," + calcSpectrum(G) + "," + calcSpectrum(B) + ")";
+      }
+      return "rgba(" + calcSpectrum(R) + "," + calcSpectrum(G) + "," + calcSpectrum(B) + "," + A + ")";
 
     case "named":
       var colorName = color.toLowerCase();
@@ -153,14 +164,11 @@ Object.prototype.toRgb = function (opacity) {
       }
       return;
 
-    default: return "error";
+    default:
+      return "error";
   }
-
   return "error";
 };
-
-
-
 
 
 Object.prototype.toHex = function (opacity) {
@@ -246,12 +254,11 @@ Object.prototype.toHex = function (opacity) {
       }
       return;
 
-    default: return "error";
+    default:
+      return "error";
   }
-
   return "error";
 };
-
 
 
 Object.prototype.toHsl = function (opacity) {
@@ -273,27 +280,27 @@ Object.prototype.toHsl = function (opacity) {
       if (!valid(s.red, s.green, s.blue, "rgb")) {
         return;
       }
-      s.red = Math.round(s.red / 255 * 100);
-      s.green = Math.round(s.green / 255 * 100);
-      s.blue = Math.round(s.blue / 255 * 100);
+      s.red /= 255;
+      s.green /= 255;
+      s.blue /= 255;
       var min = Math.min(s.red, s.green, s.blue);
       var max = Math.max(s.red, s.green, s.blue);
-      var L = (min + max) / 2;
+      var L = (min + max) / 2 * 100;
       if (L < 50) {
-        var S = Math.round((max - min) / (max + min) * 100);
+        var S = (max - min) / (max + min) * 100;
       } else {
-        var S = Math.round((max - min) / (200 - max - min) * 100);
+        var S = (max - min) / (2 - max - min) * 100;
       }
       if (max == s.red) {
-        var H = Math.round((s.green - s.blue) / (max - min) * 100) / 100;
+        var H = (s.green - s.blue) / (max - min);
       }
       if (max == s.green) {
-        var H = Math.round(200 + (s.blue - s.red) / (max - min) * 100) / 100;
+        var H = 2 + (s.blue - s.red) / (max - min);
       }
       if (max == s.blue) {
-        var H = Math.round(400 + (s.red - s.green) / (max - min) * 100) / 100;
+        var H = 4 + (s.red - s.green) / (max - min);
       }
-      H = H * 60;
+      H = Math.round(H * 60);
       S = Math.round(S);
       L = Math.round(L);
       if (H < 0) {
@@ -333,9 +340,9 @@ Object.prototype.toHsl = function (opacity) {
       }
       return;
 
-    default: return "error";
+    default:
+      return "error";
   }
-
   return "error";
 };
 
@@ -363,10 +370,10 @@ Object.prototype.mixWith = function (miscibleColor) {
       B2 = s.blue,
       A2 = s.alpha;
 
-  var R = Math.round((+R1 + +R2) / 2);
-  var G = Math.round((+G1 + +G2) / 2);
-  var B = Math.round((+B1 + +B2) / 2);
-  var A = (+A1 + +A2) / 2;
+  var R = Math.round((+R1 + +R2) / 2),
+      G = Math.round((+G1 + +G2) / 2),
+      B = Math.round((+B1 + +B2) / 2),
+      A = (+A1 + +A2) / 2;
 
   if (A == 1) {
     var mixedColor = "rgb(" + R + "," + G + "," + B + ")";
@@ -392,9 +399,9 @@ Object.prototype.mixWith = function (miscibleColor) {
       }
       return colorName;
 
-    default: return "error";
+    default:
+      return "error";
   }
-
   return "error";
 };
 
@@ -433,9 +440,9 @@ Object.prototype.invert = function () {
       }
       return colorName;
 
-    default: return "error";
+    default:
+      return "error";
   }
-
   return "error";
 };
 
@@ -476,10 +483,12 @@ function getColorType(object) {
        !color.includes(",") && object.includes("#")) {
     return "hex";
   }
-  if (c.first > 0 && c.second > c.first && (object.includes("rgb(") || object.includes("rgba("))) {
+  if (c.first > 0 && c.second > c.first && c.fourth == -1 &&
+     (object.includes("rgb(") || object.includes("rgba("))) {
     return "rgb";
   }
-  if (c.first > 0 && c.second > c.first && (object.includes("hsl(") || object.includes("hsla("))) {
+  if (c.first > 0 && c.second > c.first && c.fourth == -1 &&
+     (object.includes("hsl(") || object.includes("hsla("))) {
     return "hsl";
   }
   return "named";
@@ -488,7 +497,9 @@ function getColorType(object) {
 
 function getColorName(color) {
   for (var prop in namedColors) {
-    if (namedColors.hasOwnProperty(prop) && namedColors[prop] === color) { return prop; }
+    if (namedColors.hasOwnProperty(prop) && namedColors[prop] === color) {
+      return prop;
+    }
   }
 };
 
@@ -593,7 +604,6 @@ function defineSpectrums(color, colorType) {
       s.saturation = s.saturation.replace("%", "");
       s.lightness = s.lightness.replace("%", "");
       break;
-
   }
 };
 

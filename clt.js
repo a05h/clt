@@ -392,7 +392,7 @@ Object.prototype.mixWith = function (miscibleColor) {
       return mixedColor.toHsl();
 
     case "named":
-      mixedColor = color.toHex();
+      mixedColor = mixedColor.toHex();
       var colorName = getColorName(mixedColor.toLowerCase());
       if (colorName === undefined) {
         return mixedColor;
@@ -437,6 +437,72 @@ Object.prototype.invert = function () {
       var colorName = getColorName(invertedColor.toLowerCase());
       if (colorName === undefined) {
         return invertedColor;
+      }
+      return colorName;
+
+    default:
+      return "error";
+  }
+  return "error";
+};
+
+
+Object.prototype.grayscale = function (level) {
+  var nativeGray,
+      manualGray = false,
+      gray;
+
+  if (level !== undefined) {
+    manualGray = level.toString().replace("%", "");
+    if (/[0-9]/g.test(manualGray) && manualGray >= 0 && manualGray <= 100) {
+      manualGray = Math.round(manualGray / 100 * 255);
+    } else {
+      manualGray = false;
+    }
+  }
+
+  var color = this.toRgb();
+  color = purify(color);
+  defineCommas(color);
+  defineSpectrums(color, "rgb");
+
+  if (s.red != s.green && s.green != s.blue && s.red != s.blue) {
+    // https://msdn.microsoft.com/en-us/library/bb332387.aspx#tbconimagecolorizer_grayscaleconversion
+    s.red = Math.round(0.299 * s.red);
+    s.green = Math.round(0.587 * s.green);
+    s.blue = Math.round(0.114 * s.blue);
+  }
+  nativeGray = +s.red + +s.green + +s.blu;
+
+  if (!manualGray) {
+    if (s.alpha == 1) {
+      gray = "rgb(" + nativeGray + "," + nativeGray + "," + nativeGray + ")";
+    } else {
+      gray = "rgba(" + nativeGray + "," + nativeGray + "," + nativeGray + "," + s.alpha + ")";
+    }
+  } else {
+    if (s.alpha == 1) {
+      gray = "rgb(" + manualGray + "," + manualGray + "," + manualGray + ")";
+    } else {
+      gray = "rgba(" + manualGray + "," + manualGray + "," + manualGray + "," + s.alpha + ")";
+    }
+  }
+
+  switch (getColorType(this)) {
+    case "hex":
+      return gray.toHex();
+
+    case "rgb":
+      return gray;
+
+    case "hsl":
+      return gray.toHsl();
+
+    case "named":
+      gray = gray.toHex();
+      var colorName = getColorName(gray.toLowerCase());
+      if (colorName === undefined) {
+        return gray;
       }
       return colorName;
 

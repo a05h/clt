@@ -165,9 +165,8 @@ Object.prototype.toRgb = function (opacity) {
       return;
 
     default:
-      return "error";
+      return;
   }
-  return "error";
 };
 
 
@@ -194,7 +193,7 @@ Object.prototype.toHex = function (opacity) {
         return;
       }
       if (!opacityIsExists || !parseAlpha(opacity)) {
-        if (/[^0-9a-f]/gi.test(s.alpha)) {
+        if (/[^0-9a-f]/i.test(s.alpha)) {
           s.alpha = "FF";
         }
         A = s.alpha;
@@ -255,9 +254,8 @@ Object.prototype.toHex = function (opacity) {
       return;
 
     default:
-      return "error";
+      return;
   }
-  return "error";
 };
 
 
@@ -341,9 +339,8 @@ Object.prototype.toHsl = function (opacity) {
       return;
 
     default:
-      return "error";
+      return;
   }
-  return "error";
 };
 
 
@@ -400,9 +397,8 @@ Object.prototype.mixWith = function (miscibleColor) {
       return colorName;
 
     default:
-      return "error";
+      return;
   }
-  return "error";
 };
 
 
@@ -441,9 +437,8 @@ Object.prototype.invert = function () {
       return colorName;
 
     default:
-      return "error";
+      return;
   }
-  return "error";
 };
 
 
@@ -466,13 +461,15 @@ Object.prototype.grayscale = function (level) {
   defineCommas(color);
   defineSpectrums(color, "rgb");
 
-  if (s.red != s.green && s.green != s.blue && s.red != s.blue) {
+  if (s.red == s.green && s.green == s.blue) {
+    nativeGray = (+s.red + +s.green + +s.blue) / 3;
+  } else {
     // https://msdn.microsoft.com/en-us/library/bb332387.aspx#tbconimagecolorizer_grayscaleconversion
     s.red = Math.round(0.299 * s.red);
     s.green = Math.round(0.587 * s.green);
     s.blue = Math.round(0.114 * s.blue);
+    nativeGray = s.red + s.green + s.blue;
   }
-  nativeGray = +s.red + +s.green + +s.blu;
 
   if (!manualGray) {
     if (s.alpha == 1) {
@@ -507,15 +504,14 @@ Object.prototype.grayscale = function (level) {
       return colorName;
 
     default:
-      return "error";
+      return;
   }
-  return "error";
 };
 
 
 function parseAlpha(opacity) {
   var protoAlpha = opacity.toString().trim();
-  var alpha = +protoAlpha.replace("%", "");
+  var alpha = protoAlpha.replace("%", "");
   if (protoAlpha.includes("%")) {
     if (alpha < 0 || alpha > 100) {
       return false;
@@ -532,12 +528,7 @@ function parseAlpha(opacity) {
 
 
 function purify(object) {
-  while (object.includes("rgba") || object.includes("rgb") || object.includes("hsla") ||
-         object.includes("hsl")  || object.includes("#")   || object.includes(" ")    ||
-         object.includes("(")    || object.includes(")")   || object.includes("°")    ) {
-    object = object.replace("rgba", "").replace("rgb", "").replace("hsla", "").replace("hsl", "")
-            .replace("#", "").replace(" ", "").replace("(", "").replace(")", "").replace("°", "");
-  }
+  object = object.replace(/[^0-9a-z%,.]/gi, "").replace(/rgba|rgb|hsla|hsl/gi, "");
   return object;
 };
 
@@ -573,7 +564,7 @@ function getColorName(color) {
 function valid(r, g, b, colorType) {
   switch (colorType) {
     case "hex":
-      if (/[^0-9a-f]/gi.test(r) || /[^0-9a-f]/gi.test(g) || /[^0-9a-f]/gi.test(b)) {
+      if (/[^0-9a-f]/i.test(r) || /[^0-9a-f]/i.test(g) || /[^0-9a-f]/i.test(b)) {
         return false;
       }
       return true;

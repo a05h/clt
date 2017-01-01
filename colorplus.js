@@ -402,6 +402,23 @@ Object.prototype.mixWith = function (miscibleColor) {
 };
 
 
+var lineEntries = {};
+
+Object.prototype.mixAll = function () {
+  var line = this.toString(),
+      endLine = false,
+      colorNumber = 1,
+      pattern = /rgb|rgba|hsl|hsla|#/g;
+
+  return line.split(pattern);
+
+  while (!endLine) {
+    lineEntries[...] = line.substring(..., ...);
+  }
+
+};
+
+
 Object.prototype.invert = function () {
   var color = this.toRgb();
   color = purify(color);

@@ -123,6 +123,9 @@ Object.prototype.toRgb = function (opacity) {
       s.saturation /= 100;
       s.lightness /= 100;
 
+      s.hue /= 60;
+      s.saturation /= 100;
+      s.lightness /= 100;
       if (s.lightness < 0.5) {
         var temp1 = s.lightness * (1 + s.saturation);
       } else {

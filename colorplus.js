@@ -2,7 +2,7 @@
 
 "use strict";
 
-var c = {},
+let c = {},
     s = {},
     namedColors = { black: "#000000", silver: "#c0c0c0", gray: "#808080", white: "#ffffff", maroon: "#800000",
         red: "#ff0000", purple: "#800080", fuchsia: "#ff00ff", green: "#008000", grey: "#808080",
@@ -48,8 +48,11 @@ var c = {},
         darkslategrey: "#2f4f4f", darkturquoise: "#00ced1", darkviolet: "#9400d3" };
 
 
+/* Main functions */
+
+
 Object.prototype.toRgb = function (opacity) {
-  var color = purify(this),
+  let color = purify(this),
       opacityIsExists = false,
       A;
 
@@ -64,9 +67,11 @@ Object.prototype.toRgb = function (opacity) {
       if (!valid(s.red, s.green, s.blue, "hex")) {
         return;
       }
+
       s.red = parseInt(s.red, 16);
       s.green = parseInt(s.green, 16);
       s.blue = parseInt(s.blue, 16);
+
       if (!opacityIsExists || !parseAlpha(opacity)) {
         if (/[^0-9a-f]/gi.test(s.alpha)) {
           s.alpha = 1;
@@ -78,9 +83,9 @@ Object.prototype.toRgb = function (opacity) {
         A = s.alpha;
       }
       if (A == 1) {
-        return "rgb(" + s.red + "," + s.green + "," + s.blue + ")";
+        return `rgb(${s.red},${s.green},${s.blue})`;
       }
-      return "rgba(" + s.red + "," + s.green + "," + s.blue + "," + A + ")";
+      return `rgba(${s.red},${s.green},${s.blue},${A})`;
 
     case "rgb":
       defineSpectrums(color, "rgb");
@@ -94,9 +99,9 @@ Object.prototype.toRgb = function (opacity) {
         A = s.alpha;
       }
       if (A == 1) {
-        return "rgb(" + s.red + "," + s.green + "," + s.blue + ")";
+        return `rgb(${s.red},${s.green},${s.blue})`;
       }
-      return "rgba(" + s.red + "," + s.green + "," + s.blue + "," + A + ")";
+      return `rgba(${s.red},${s.green},${s.blue},${A})`;
 
     case "hsl":
       defineSpectrums(color, "hsl");
@@ -114,25 +119,22 @@ Object.prototype.toRgb = function (opacity) {
           A = s.alpha;
         }
         if (A == 1) {
-          return "rgb(" + s.hue + "," + s.saturation + "," + s.lightness + ")";
+          return `rgb(${s.hue},${s.saturation},${s.lightness})`;
         }
-        return "rgba(" + s.hue + "," + s.saturation + "," + s.lightness + "," + A + ")";
+        return `rgba(${s.hue},${s.saturation},${s.lightness},${A})`;
       }
 
       s.hue /= 60;
       s.saturation /= 100;
       s.lightness /= 100;
 
-      s.hue /= 60;
-      s.saturation /= 100;
-      s.lightness /= 100;
       if (s.lightness < 0.5) {
         var temp1 = s.lightness * (1 + s.saturation);
       } else {
         var temp1 = s.lightness + s.saturation - s.lightness * s.saturation;
       }
 
-      var temp2 = s.lightness * 2 - temp1,
+      let temp2 = s.lightness * 2 - temp1,
           R = s.hue + 2,
           G = s.hue,
           B = s.hue - 2;
@@ -163,12 +165,12 @@ Object.prototype.toRgb = function (opacity) {
         A = s.alpha;
       }
       if (A == 1) {
-        return "rgb(" + calcSpectrum(R) + "," + calcSpectrum(G) + "," + calcSpectrum(B) + ")";
+        return `rgb(${calcSpectrum(R)},${calcSpectrum(G)},${calcSpectrum(B)})`;
       }
-      return "rgba(" + calcSpectrum(R) + "," + calcSpectrum(G) + "," + calcSpectrum(B) + "," + A + ")";
+      return `rgba(${calcSpectrum(R)},${calcSpectrum(G)},${calcSpectrum(B)},${A})`;
 
     case "named":
-      var colorName = color.toLowerCase();
+      let colorName = color.toLowerCase();
       if (colorName in namedColors) {
         return namedColors[colorName].toRgb(opacity);
       }
@@ -181,7 +183,7 @@ Object.prototype.toRgb = function (opacity) {
 
 
 Object.prototype.toHex = function (opacity) {
-  var color = purify(this),
+  let color = purify(this),
       opacityIsExists = false,
       A;
 
@@ -202,6 +204,7 @@ Object.prototype.toHex = function (opacity) {
       if (!valid(s.red, s.green, s.blue, "hex")) {
         return;
       }
+
       if (!opacityIsExists || !parseAlpha(opacity)) {
         if (/[^0-9a-f]/i.test(s.alpha)) {
           s.alpha = "FF";
@@ -209,15 +212,16 @@ Object.prototype.toHex = function (opacity) {
         A = s.alpha;
       }
       if (A == "FF") {
-        return "#" + s.red + s.green + s.blue;
+        return `#${s.red}${s.green}${s.blue}`;
       }
-      return "#" + s.red + s.green + s.blue + A;
+      return `#${s.red}${s.green}${s.blue}${A}`;
 
     case "rgb":
       defineSpectrums(color, "rgb");
       if (!valid(s.red, s.green, s.blue, "rgb")) {
         return;
       }
+
       s.red = +s.red;
       s.red = s.red.toString(16).toUpperCase();
       if (s.red.length == 1) {
@@ -233,6 +237,7 @@ Object.prototype.toHex = function (opacity) {
       if (s.blue.length == 1) {
         s.blue = s.blue.repeat(2);
       }
+
       if (!opacityIsExists || !parseAlpha(opacity)) {
         if (!parseAlpha(s.alpha)) {
           s.alpha = "FF";
@@ -246,15 +251,15 @@ Object.prototype.toHex = function (opacity) {
         A = s.alpha;
       }
       if (A == "FF") {
-        return "#" + s.red + s.green + s.blue;
+        return `#${s.red}${s.green}${s.blue}`;
       }
-      return "#" + s.red + s.green + s.blue + A;
+      return `#${s.red}${s.green}${s.blue}${A}`;
 
     case "hsl":
       return this.toRgb(opacity).toHex();
 
     case "named":
-      var colorName = color.toLowerCase();
+      let colorName = color.toLowerCase();
       if (colorName in namedColors) {
         if (A == "FF" || !opacityIsExists || !parseAlpha(opacity)) {
           return namedColors[colorName].toUpperCase();
@@ -270,7 +275,7 @@ Object.prototype.toHex = function (opacity) {
 
 
 Object.prototype.toHsl = function (opacity) {
-  var color = purify(this),
+  let color = purify(this),
       opacityIsExists = false,
       A;
 
@@ -288,12 +293,14 @@ Object.prototype.toHsl = function (opacity) {
       if (!valid(s.red, s.green, s.blue, "rgb")) {
         return;
       }
+
       s.red /= 255;
       s.green /= 255;
       s.blue /= 255;
-      var min = Math.min(s.red, s.green, s.blue);
-      var max = Math.max(s.red, s.green, s.blue);
-      var L = (min + max) / 2 * 100;
+      let min = Math.min(s.red, s.green, s.blue),
+          max = Math.max(s.red, s.green, s.blue);
+      let L = (min + max) / 2 * 100;
+
       if (L < 50) {
         var S = (max - min) / (max + min) * 100;
       } else {
@@ -308,12 +315,14 @@ Object.prototype.toHsl = function (opacity) {
       if (max == s.blue) {
         var H = 4 + (s.red - s.green) / (max - min);
       }
+
       H = Math.round(H * 60);
       S = Math.round(S);
       L = Math.round(L);
       if (H < 0) {
         H += 360;
       }
+
       if (!opacityIsExists || !parseAlpha(opacity)) {
         if (!parseAlpha(s.alpha)) {
           s.alpha = 1;
@@ -321,9 +330,9 @@ Object.prototype.toHsl = function (opacity) {
         A = s.alpha;
       }
       if (A == 1) {
-        return "hsl(" + H + "," + S + "%," + L + "%)";
+        return `hsl(${H},${S}%,${L}%)`;
       }
-      return "hsl(" + H + "," + S + "%," + L + "%," + A + ")";
+      return `hsla(${H},${S}%,${L}%,${A})`;
 
     case "hsl":
       defineSpectrums(color, "hsl");
@@ -337,12 +346,12 @@ Object.prototype.toHsl = function (opacity) {
         A = s.alpha;
       }
       if (A == 1) {
-        return "hsl(" + s.hue + "," + s.saturation + "%," + s.lightness + "%)";
+        return `hsl(${s.hue},${s.saturation}%,${s.lightness}%)`;
       }
-      return "hsla(" + s.hue + "," + s.saturation + "%," + s.lightness + "%," + A + ")";
+      return `hsla(${s.hue},${s.saturation}%,${s.lightness}%,${A})`;
 
     case "named":
-      var colorName = color.toLowerCase();
+      let colorName = color.toLowerCase();
       if (colorName in namedColors) {
         return namedColors[colorName].toRgb(opacity).toHsl();
       }
@@ -354,38 +363,34 @@ Object.prototype.toHsl = function (opacity) {
 };
 
 
-Object.prototype.mixWith = function (miscibleColor) {
-  if (miscibleColor === undefined) {
-    return this;
-  }
-
-  var mainColor = this.toRgb();
+Object.prototype.mixWith = function (miscibleColor = this) {
+  let mainColor = this.toRgb();
   mainColor = purify(mainColor);
   defineCommas(mainColor);
   defineSpectrums(mainColor, "rgb");
-  var R1 = s.red,
+  let R1 = s.red,
       G1 = s.green,
       B1 = s.blue,
       A1 = s.alpha;
 
-  var miscColor = miscibleColor.toRgb();
+  let miscColor = miscibleColor.toRgb();
   miscColor = purify(miscColor);
   defineCommas(miscColor);
   defineSpectrums(miscColor, "rgb");
-  var R2 = s.red,
+  let R2 = s.red,
       G2 = s.green,
       B2 = s.blue,
       A2 = s.alpha;
 
-  var R = Math.round((+R1 + +R2) / 2),
+  let R = Math.round((+R1 + +R2) / 2),
       G = Math.round((+G1 + +G2) / 2),
       B = Math.round((+B1 + +B2) / 2),
       A = (+A1 + +A2) / 2;
 
   if (A == 1) {
-    var mixedColor = "rgb(" + R + "," + G + "," + B + ")";
+    var mixedColor = `rgb(${R},${G},${B})`;
   } else {
-    var mixedColor = "rgba(" + R + "," + G + "," + B + "," + A + ")";
+    var mixedColor = `rgba(${R},${G},${B},${A})`;
   }
 
   switch (getColorType(this)) {
@@ -400,7 +405,7 @@ Object.prototype.mixWith = function (miscibleColor) {
 
     case "named":
       mixedColor = mixedColor.toHex();
-      var colorName = getColorName(mixedColor.toLowerCase());
+      let colorName = getColorName(mixedColor.toLowerCase());
       if (colorName === undefined) {
         return mixedColor;
       }
@@ -412,30 +417,30 @@ Object.prototype.mixWith = function (miscibleColor) {
 };
 
 
-Object.prototype.mixAll = function () {
-  let line = this.toString(),
-      lineEntries = line.split("!");
-
-  lineEntries.shift();
-  lineEntries = lineEntries.map((element) => {
-    let elem = element.replace(/\s/g, "");
-    if (elem.endsWith(",")) {
-      elem = elem.slice(0, -1);
-    }
-    return elem;
-  });
-
-  lineEntries = lineEntries.map((element) => {
-    return element.toRgb();
-  });
-
-  return lineEntries;
-
-};
+// Object.prototype.mixAll = function () {
+//   let line = this.toString(),
+//       lineEntries = line.split("!");
+//
+//   lineEntries.shift();
+//   lineEntries = lineEntries.map((element) => {
+//     let elem = element.replace(/\s/g, "");
+//     if (elem.endsWith(",")) {
+//       elem = elem.slice(0, -1);
+//     }
+//     return elem;
+//   });
+//
+//   lineEntries = lineEntries.map((element) => {
+//     return element.toRgb();
+//   });
+//
+//   return lineEntries;
+//
+// };
 
 
 Object.prototype.invert = function () {
-  var color = this.toRgb();
+  let color = this.toRgb();
   color = purify(color);
   defineCommas(color);
   defineSpectrums(color, "rgb");
@@ -445,9 +450,9 @@ Object.prototype.invert = function () {
   s.blue = 255 - s.blue;
 
   if (s.alpha == 1) {
-    var invertedColor = "rgb(" + s.red + "," + s.green + "," + s.blue + ")";
+    var invertedColor = `rgb(${s.red},${s.green},${s.blue})`;
   } else {
-    var invertedColor = "rgba(" + s.red + "," + s.green + "," + s.blue + "," + s.alpha + ")";
+    var invertedColor = `rgba(${s.red},${s.green},${s.blue},${s.alpha})`;
   }
 
   switch (getColorType(this)) {
@@ -462,7 +467,7 @@ Object.prototype.invert = function () {
 
     case "named":
       invertedColor = invertedColor.toHex();
-      var colorName = getColorName(invertedColor.toLowerCase());
+      let colorName = getColorName(invertedColor.toLowerCase());
       if (colorName === undefined) {
         return invertedColor;
       }
@@ -475,7 +480,7 @@ Object.prototype.invert = function () {
 
 
 Object.prototype.grayscale = function (level) {
-  var nativeGray,
+  let nativeGray,
       manualGray = false,
       gray;
 
@@ -488,7 +493,7 @@ Object.prototype.grayscale = function (level) {
     }
   }
 
-  var color = this.toRgb();
+  let color = this.toRgb();
   color = purify(color);
   defineCommas(color);
   defineSpectrums(color, "rgb");
@@ -505,15 +510,15 @@ Object.prototype.grayscale = function (level) {
 
   if (!manualGray) {
     if (s.alpha == 1) {
-      gray = "rgb(" + nativeGray + "," + nativeGray + "," + nativeGray + ")";
+      gray = `rgb(${nativeGray},${nativeGray},${nativeGray})`;
     } else {
-      gray = "rgba(" + nativeGray + "," + nativeGray + "," + nativeGray + "," + s.alpha + ")";
+      gray = `rgba(${nativeGray},${nativeGray},${nativeGray}${s.alpha})`;
     }
   } else {
     if (s.alpha == 1) {
-      gray = "rgb(" + manualGray + "," + manualGray + "," + manualGray + ")";
+      gray = `rgb(${manualGray},${manualGray},${manualGray})`;
     } else {
-      gray = "rgba(" + manualGray + "," + manualGray + "," + manualGray + "," + s.alpha + ")";
+      gray = `rgba(${manualGray},${manualGray},${manualGray}${s.alpha})`;
     }
   }
 
@@ -529,7 +534,7 @@ Object.prototype.grayscale = function (level) {
 
     case "named":
       gray = gray.toHex();
-      var colorName = getColorName(gray.toLowerCase());
+      let colorName = getColorName(gray.toLowerCase());
       if (colorName === undefined) {
         return gray;
       }
@@ -541,9 +546,12 @@ Object.prototype.grayscale = function (level) {
 };
 
 
+/* Accessory functions */
+
+
 function parseAlpha(opacity) {
-  var protoAlpha = opacity.toString().trim();
-  var alpha = protoAlpha.replace("%", "");
+  let protoAlpha = opacity.toString().trim();
+  let alpha = protoAlpha.replace("%", "");
   if (protoAlpha.includes("%")) {
     if (alpha < 0 || alpha > 100) {
       return false;
@@ -566,7 +574,7 @@ function purify(object) {
 
 
 function getColorType(object) {
-  var color = purify(object);
+  let color = purify(object);
   defineCommas(object);
   if ((color.length == 6 || color.length == 3 || color.length == 8 || color.length == 4) &&
        !color.includes(",") && object.includes("#")) {
@@ -585,7 +593,7 @@ function getColorType(object) {
 
 
 function getColorName(color) {
-  for (var prop in namedColors) {
+  for (let prop in namedColors) {
     if (namedColors.hasOwnProperty(prop) && namedColors[prop] === color) {
       return prop;
     }
@@ -615,7 +623,7 @@ function valid(r, g, b, colorType) {
 
 
 function defineCommas(object) {
-  var color = purify(object);
+  let color = purify(object);
   c.first = color.indexOf(",");
   c.second = color.indexOf(",", c.first+1);
   c.third = color.indexOf(",", c.second+1);

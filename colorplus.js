@@ -128,10 +128,11 @@ Object.prototype.toRgb = function (opacity) {
       s.saturation /= 100;
       s.lightness /= 100;
 
+      let temp1;
       if (s.lightness < 0.5) {
-        var temp1 = s.lightness * (1 + s.saturation);
+        temp1 = s.lightness * (1 + s.saturation);
       } else {
-        var temp1 = s.lightness + s.saturation - s.lightness * s.saturation;
+        temp1 = s.lightness + s.saturation - s.lightness * s.saturation;
       }
 
       let temp2 = s.lightness * 2 - temp1,
@@ -176,7 +177,7 @@ Object.prototype.toRgb = function (opacity) {
       }
       return;
 
-    default:
+    case "error":
       return;
   }
 };
@@ -268,7 +269,7 @@ Object.prototype.toHex = function (opacity) {
       }
       return;
 
-    default:
+    case "error":
       return;
   }
 };
@@ -297,23 +298,29 @@ Object.prototype.toHsl = function (opacity) {
       s.red /= 255;
       s.green /= 255;
       s.blue /= 255;
+
       let min = Math.min(s.red, s.green, s.blue),
           max = Math.max(s.red, s.green, s.blue);
-      let L = (min + max) / 2 * 100;
+      let H,
+          S,
+          L = (min + max) / 2 * 100;
 
       if (L < 50) {
-        var S = (max - min) / (max + min) * 100;
+        S = (max - min) / (max + min) * 100;
       } else {
-        var S = (max - min) / (2 - max - min) * 100;
+        S = (max - min) / (2 - max - min) * 100;
       }
       if (max == s.red) {
-        var H = (s.green - s.blue) / (max - min);
+        H = (s.green - s.blue) / (max - min);
       }
       if (max == s.green) {
-        var H = 2 + (s.blue - s.red) / (max - min);
+        H = 2 + (s.blue - s.red) / (max - min);
       }
       if (max == s.blue) {
-        var H = 4 + (s.red - s.green) / (max - min);
+        H = 4 + (s.red - s.green) / (max - min);
+      }
+      if (isNaN(H)) {
+        H = 0;
       }
 
       H = Math.round(H * 60);
@@ -357,7 +364,7 @@ Object.prototype.toHsl = function (opacity) {
       }
       return;
 
-    default:
+    case "error":
       return;
   }
 };
@@ -387,10 +394,11 @@ Object.prototype.mixWith = function (miscibleColor = this) {
       B = Math.round((+B1 + +B2) / 2),
       A = (+A1 + +A2) / 2;
 
+  let mixedColor;
   if (A == 1) {
-    var mixedColor = `rgb(${R},${G},${B})`;
+    mixedColor = `rgb(${R},${G},${B})`;
   } else {
-    var mixedColor = `rgba(${R},${G},${B},${A})`;
+    mixedColor = `rgba(${R},${G},${B},${A})`;
   }
 
   switch (getColorType(this)) {
@@ -411,32 +419,10 @@ Object.prototype.mixWith = function (miscibleColor = this) {
       }
       return colorName;
 
-    default:
+    case "error":
       return;
   }
 };
-
-
-// Object.prototype.mixAll = function () {
-//   let line = this.toString(),
-//       lineEntries = line.split("!");
-//
-//   lineEntries.shift();
-//   lineEntries = lineEntries.map((element) => {
-//     let elem = element.replace(/\s/g, "");
-//     if (elem.endsWith(",")) {
-//       elem = elem.slice(0, -1);
-//     }
-//     return elem;
-//   });
-//
-//   lineEntries = lineEntries.map((element) => {
-//     return element.toRgb();
-//   });
-//
-//   return lineEntries;
-//
-// };
 
 
 Object.prototype.invert = function () {
@@ -449,10 +435,11 @@ Object.prototype.invert = function () {
   s.green = 255 - s.green;
   s.blue = 255 - s.blue;
 
+  let invertedColor;
   if (s.alpha == 1) {
-    var invertedColor = `rgb(${s.red},${s.green},${s.blue})`;
+    invertedColor = `rgb(${s.red},${s.green},${s.blue})`;
   } else {
-    var invertedColor = `rgba(${s.red},${s.green},${s.blue},${s.alpha})`;
+    invertedColor = `rgba(${s.red},${s.green},${s.blue},${s.alpha})`;
   }
 
   switch (getColorType(this)) {
@@ -473,7 +460,7 @@ Object.prototype.invert = function () {
       }
       return colorName;
 
-    default:
+    case "error":
       return;
   }
 };
@@ -512,13 +499,13 @@ Object.prototype.grayscale = function (level) {
     if (s.alpha == 1) {
       gray = `rgb(${nativeGray},${nativeGray},${nativeGray})`;
     } else {
-      gray = `rgba(${nativeGray},${nativeGray},${nativeGray}${s.alpha})`;
+      gray = `rgba(${nativeGray},${nativeGray},${nativeGray},${s.alpha})`;
     }
   } else {
     if (s.alpha == 1) {
       gray = `rgb(${manualGray},${manualGray},${manualGray})`;
     } else {
-      gray = `rgba(${manualGray},${manualGray},${manualGray}${s.alpha})`;
+      gray = `rgba(${manualGray},${manualGray},${manualGray},${s.alpha})`;
     }
   }
 
@@ -540,7 +527,7 @@ Object.prototype.grayscale = function (level) {
       }
       return colorName;
 
-    default:
+    case "error":
       return;
   }
 };
@@ -576,6 +563,9 @@ function purify(object) {
 function getColorType(object) {
   let color = purify(object);
   defineCommas(object);
+  if (c.fourth != -1) {
+    return "error";
+  }
   if ((color.length == 6 || color.length == 3 || color.length == 8 || color.length == 4) &&
        !color.includes(",") && object.includes("#")) {
     return "hex";

@@ -524,7 +524,7 @@ Object.prototype.grayscale = function (level) {
       let colorName = getColorName(gray.toLowerCase());
       if (colorName === undefined) {
         return gray;
-      }``
+      }
       return colorName;
 
     case 'error':
